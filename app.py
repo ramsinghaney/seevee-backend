@@ -1,14 +1,26 @@
 import os
-from flask import Flask, render_template, request, send_file, flash, redirect, url_for
+from flask import Flask, render_template, request, send_file, flash, redirect, url_for, json
 import ppa
 import sys
 import shutil
+
 
 app = Flask(__name__)
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 app.secret_key = 'random string'
 
+@app.route('/random', methods=['POST'])
+def random():
+	return json.dumps(request.json)
 
+@app.route('/getResponse', methods=['POST'])
+def getResponseList():
+    responseList=[]
+    requestObj=request.json
+    for t in requestObj["resumes"]:
+        dictObj=ppa.getDictObj(t["text"])
+        responseList.append(dictObj)
+    return json.dumps(responseList)
 
 @app.route('/')
 def my_form():
@@ -59,6 +71,9 @@ def choice_a():
     if(selected_choice=='exit'):
        return 'Thanks for visiting. Hope You get placed :)'
 
+
+def getResponseObj(requestObj):
+    return ppa.getDictObj(
 
 if __name__ == '__main__':
    app.run()

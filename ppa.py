@@ -316,6 +316,38 @@ def allToExcel(document_directory):
     except:
         print("File is in use", "The excel file is in use by another program, kindly close it and try again by clicking compile data.")
             
+def getDictObj(text):
+    
+    if(len(text)==0):
+        return
+    
+    final_words=shortenText(text)
+    primary_skills_present=primarySkillMatch(final_words)
+    secondary_skills_present=secSkillMatch(final_words)
+    exp=experience(final_words)
+    obj=resume('dummy_path_path',primary_skills_present,secondary_skills_present,exp)
+    
+
+    
+    
+    final_vector=[]
+    final_vector.append(obj.getVector())
+
+    final_vector=np.array(final_vector)
+
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score
+    from sklearn.neighbors import KNeighborsClassifier
+    import pickle
+
+
+    filename = 'finalized_model.sav'
+    loaded_model = pickle.load(open(filename, 'rb'))
+    label_list = loaded_model.predict(final_vector)
+    
+    dict_obj={'primary_skill': obj.getPrimarySkill(), 'secondary_skill': obj.getSecSkill(), 'experience': obj.getExp(), 'eligibility': getLabelName(label_list[0])}
+    return dict_obj
 
         
 def allToExcelGUI():
@@ -424,4 +456,6 @@ def commandLine():
 
 
 import threading
+
+test_text='Over 8 years of experience in the IT industry with a good command on design, development and test of client server, web based and distributed software applications by using J2SE and J2EE technologies. Experience in software engineering, planning, designing, implementation of cloud infrastructure utilizing Amazon Web Services and Build Release Management. Strong development skills in Java, J2EE, JDBC, JSP, Servlets, EJB J2EE, JMS MQ-series, JNDI, RMI, C, HTML5, XML, XSL, Java Script, DB2, Oracle, SQServer and Macromedia tools'
 
